@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jpyjs9"
-description = ''
+description = 'Running js9 on inside jupyter'
 readme = "README.md"
 requires-python = ">=3.7"
 license = "MIT"
@@ -12,50 +12,15 @@ keywords = []
 authors = [
   { name = "Abdu Zoghbi", email = "a.zoghbi@nasa.gov" },
 ]
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
-]
+
 dependencies = []
 dynamic = ["version"]
 
 [project.urls]
-Documentation = "https://github.com/unknown/jpyjs9#readme"
-Issues = "https://github.com/unknown/jpyjs9/issues"
-Source = "https://github.com/unknown/jpyjs9"
+Source = "https://github.com/zoghbi-a/jpyjs9"
 
 [tool.hatch.version]
-path = "jpyjs9/__about__.py"
+path = "jpyjs9/__init__.py"
 
-[tool.hatch.envs.default]
-dependencies = [
-  "pytest",
-  "pytest-cov",
-]
-[tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=jpyjs9 --cov=tests {args}"
-no-cov = "cov --no-cov {args}"
-
-[[tool.hatch.envs.test.matrix]]
-python = ["37", "38", "39", "310", "311"]
-
-[tool.coverage.run]
-branch = true
-parallel = true
-omit = [
-  "jpyjs9/__about__.py",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+[tool.hatch.build.targets.sdist]
+exclude = [".git", ".ipynb_checkpoints"]
