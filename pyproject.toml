@@ -13,14 +13,22 @@ authors = [
   { name = "Abdu Zoghbi", email = "a.zoghbi@nasa.gov" },
 ]
 
-dependencies = []
+dependencies = [
+    'jupyter-server-proxy',
+]
 dynamic = ["version"]
+
+[project.entry-points.jupyter_serverproxy_servers]
+js9 = "jpyjs9:js9_web_server"
 
 [project.urls]
 Source = "https://github.com/zoghbi-a/jpyjs9"
 
 [tool.hatch.version]
 path = "jpyjs9/__init__.py"
+
+[tool.hatch.build.targets.wheel.shared-data]
+"jpyjs9.json" = "etc/jupyter/jupyter_server_config.d/jpyjs9.json"
 
 [tool.hatch.build.targets.sdist]
 exclude = [".git", ".ipynb_checkpoints"]
