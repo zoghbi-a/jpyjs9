@@ -6,6 +6,7 @@ __version__ = '0.1'
 
 
 from .handler import _jupyter_server_extension_paths
+from .jjs9 import jJS9
 
 
 ## ----------------------------------------- ##
