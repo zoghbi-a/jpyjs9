@@ -2,7 +2,7 @@
 JS9 wrapper to be used in Jupyter/IPython notebooks.
 Some of the ideas were adopted from jjs9
 """
-from pyjs9 import JS9_ 
+from pyjs9 import JS9 as JS9_ 
 import weakref
 import uuid
 import ipywidgets as ipw
