@@ -42,13 +42,15 @@ class jJS9(pyjs9.JS9, KeepRefs):
             self.wid = str(uuid.uuid4().hex)
         else:
             self.wid = wid
-        self.node_url = '{}:{}'.format(root, port_io)
-        self.frame_url = '{}:{}{}'.format(root, port_html, path)
+        self.node_url = f'{root}:{port_io}'
+        self.frame_url = f'{root}:{port_html}{parth}'
         self.displays = OrderedDict()
         self.connected = False
         self.msg = ''
         self.id = None
         #super(jJS9, self).__init__(host=self.node_url, id=wid+'JS9')
+        
+    
     def connect(self, wid = None, external=False):
             temp = self.wid
             if wid is not None:
@@ -61,11 +63,13 @@ class jJS9(pyjs9.JS9, KeepRefs):
                 super(jJS9, self).__init__(host=self.node_url, id='JS9-'+self.wid)
                 self.connected = True
             else:
-                print('{} display does not exist'.format(self.wid))
+                print(f'{self.wid} display does not exist')
                 self.wid = temp
+    
     def handler_displayed(self, widget):
         #self._connect()
         self.msg = 'connected'
+    
     def new_display(self, attached=True, wid=None, height_px=600, width_px=580):
         if wid is not None:
             self.wid = str(wid)
@@ -74,7 +78,7 @@ class jJS9(pyjs9.JS9, KeepRefs):
             for j in r.displays.keys():
                 all_d.add(j)
         if self.wid in all_d:
-            print('{} exists. Enter a different id or remove current display'.format(self.wid))
+            print(f'{self.wid} exists. Enter a different id or remove current display')
             return
         html_code = "<iframe src='{}/{}' width={} height={}></iframe>".format(self.frame_url, self.wid, width_px, height_px)
         self.displays[self.wid] = {'attached': attached, 'obj':ipw.widgets.HTML(value = html_code)}

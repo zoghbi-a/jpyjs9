@@ -39,7 +39,7 @@ as an entry point
 """
 def js9_helper_server():
     return {
-        'command': ['bash', '-c', 'DEBUG=socket* node /opt/js9-web/js9Helper.js'],
+        'command': ['bash', '-c', 'node /opt/js9-web/js9Helper.js'],
         'port': 2718,
         'launcher_entry': {
            'enabled': False,
