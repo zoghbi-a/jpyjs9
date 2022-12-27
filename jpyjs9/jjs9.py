@@ -1,128 +1,99 @@
-
 """
-JS9 wrapper to be used in Jupyter/IPython notebooks
-Adapted from jjs9 by Matias Carrasco Kind
+JS9 wrapper to be used in Jupyter/IPython notebooks.
+Some of the ideas were adopted from jjs9
 """
-
-import pyjs9
+from pyjs9 import JS9_ 
+import weakref
+import uuid
 import ipywidgets as ipw
 from sidecar import Sidecar
-from six import BytesIO
-import base64
-from socketIO_client import SocketIO
-import json
-from io import StringIO
-import http
-import requests
-import socketio
-import uuid
-from collections import OrderedDict
-from collections import defaultdict
-import weakref
+
+# ignore socketio connection error
+import logging
+logging.getLogger('root').setLevel(logging.ERROR)
 
 
-class KeepRefs(object):
-    __refs__ = defaultdict(list)
-    def __init__(self):
-        self.__refs__[self.__class__].append(weakref.ref(self))
+_JS9Refs = {}    
 
-    @classmethod
-    def get_instances(cls):
-        for inst_ref in cls.__refs__[cls]:
-            inst = inst_ref()
-            if inst is not None:
-                yield inst
-
-
-class jJS9(pyjs9.JS9, KeepRefs):
-    def __init__(self, root='http://localhost', path='/js9', port_html=8888, port_io=2718, transport='socketio', wid=None):
-        KeepRefs.__init__(self)
-        pyjs9.js9Globals['transport'] = transport
-        if wid is None:
-            self.wid = str(uuid.uuid4().hex)
-        else:
-            self.wid = wid
-        self.node_url = f'{root}:{port_io}'
-        self.frame_url = f'{root}:{port_html}{parth}'
-        self.displays = OrderedDict()
-        self.connected = False
-        self.msg = ''
-        self.id = None
-        #super(jJS9, self).__init__(host=self.node_url, id=wid+'JS9')
+class JS9(JS9_):
+    
+    def __init__(self, side=False, *args, **kwargs):
+        """Start or connect to an instance of JS9
         
-    
-    def connect(self, wid = None, external=False):
-            temp = self.wid
-            if wid is not None:
-                self.wid = wid
-            if external:
-                super(jJS9, self).__init__(host=self.node_url, id='JS9-'+self.wid)
-                self.connected = True
-                return
-            if self.wid in self.displays:
-                super(jJS9, self).__init__(host=self.node_url, id='JS9-'+self.wid)
-                self.connected = True
-            else:
-                print(f'{self.wid} display does not exist')
-                self.wid = temp
-    
-    def handler_displayed(self, widget):
-        #self._connect()
-        self.msg = 'connected'
-    
-    def new_display(self, attached=True, wid=None, height_px=600, width_px=580):
-        if wid is not None:
-            self.wid = str(wid)
-        all_d = set()
-        for r in self.get_instances():
-            for j in r.displays.keys():
-                all_d.add(j)
-        if self.wid in all_d:
-            print(f'{self.wid} exists. Enter a different id or remove current display')
-            return
-        html_code = "<iframe src='{}/{}' width={} height={}></iframe>".format(self.frame_url, self.wid, width_px, height_px)
-        self.displays[self.wid] = {'attached': attached, 'obj':ipw.widgets.HTML(value = html_code)}
-        if attached:
-            display(self.displays[self.wid]['obj'])
+        Parameters:
+        -----------
+        host: 'http://localhost:2718',
+        id: 'JS9',
+        multi: False,
+        pageid: None,
+        maxtries: 5,
+        delay: 1,
+        debug: False,
+        side: False, Set true to start in a side windown in jupyter
+        frame_url: 'http://localhost:8888/js9', the url to the js9 app
+        width: 600
+        height: 600
+        """
+        # append the main docstring from parent
+        JS9.__init__.__doc__ += JS9_.__init__.__doc__
+
+        
+        if len(args) > 1:
+            id = args[1]
+            args = (args[0],) + args[2:]
+        elif 'id' in kwargs:
+            id = kwargs.pop('id')
         else:
-            self.sc = Sidecar(title='{}'.format(self.wid), layout=ipw.Layout(width='580px', height='600px'))
-            self.displays[self.wid]['obj'].on_displayed(self.handler_displayed)
+            id = str(uuid.uuid4())[:4]
+        
+        if len(args) == 7:
+            debug = args[6]
+        elif 'debug' in kwargs:
+            debug = kwargs['debug']
+        else:
+            debug = False
+        
+        # extra parameter
+        frame_url = kwargs.get('frame_url', 'http://localhost:8888/js9')
+        width  = kwargs.get('width', 600)
+        height = kwargs.get('height', 700)
+        
+        
+        ref = _JS9Refs.get(id, None)
+        if ref is not None:
+            if debug: print(f'Recovering instance {id}')
+            ref = ref()
+            if debug: print(f'Recoved instance {id}')
+            
+        # attach the JS9 window
+        html = f"<iframe src='{frame_url}/{id}' width={width} height={height}></iframe>"
+        self.ipw_obj = ipw.widgets.HTML(value = html)
+        
+        self.sc = None
+        if side:
+            # open a side window 
+            layout = ipw.Layout(width=f'{width}px', height=f'{height}px')
+            self.sc = Sidecar(title=f'JS9-{id}', layout=layout)
             with self.sc:
-                display(self.displays[self.wid]['obj'])
-        return
-    def close_display(self, wid=None):
-        if wid is not None:
-            closeid = wid
+                display(self.ipw_obj)
         else:
-            closeid = self.wid
-        temp = self.displays[closeid]
-        if temp['attached']:
-            temp['obj'].close()
-        else:
+            display(self.ipw_obj)
+
+        
+        if ref is None:
+            if debug: print(f'Starting a new instance {id}')
+            _JS9Refs[id] = weakref.ref(self)
+        
+        # initialize the parent JS9 class, first remove our added keys
+        for k in ['frame_url', 'width', 'height']:
+            kwargs.pop(k, None)
+        if debug: print(f'Calling parent for {id}')
+        super(JS9, self).__init__(id=f'JS9-{id}', multi=True, *args, **kwargs)
+            
+            
+    def close(self):
+        # close the display as well as the js9 connection
+        self.ipw_obj.close()
+        if self.sc is not None:
             self.sc.close()
-            temp['obj'].close()
-        #self.displays.pop(closeid)
-        del(self.displays[closeid])
-        self.connected = False
-        return
-    
-    def close_all_displays(self, force=False):
-        tkeys = list(self.displays.keys())
-        for kid in tkeys:
-            self.close_display(wid = kid)
-        try:
-            self.sc.close_all()
-        except AttributeError:
-            pass
-        if force:
-            for r in self.get_instances():
-                for jid in r.displays.keys():
-                    temp = r.displays[jid]
-                    if temp['attached']:
-                        temp['obj'].close()
-                    else:
-                        r.sc.close()
-                        temp['obj'].close()
-                    del(r.displays[jid])
-                    r.connected = False
-        return
+        super(JS9, self).close()
