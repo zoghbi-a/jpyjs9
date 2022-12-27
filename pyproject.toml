@@ -18,7 +18,7 @@ dependencies = [
     "python-socketio[client]",
     "socketIO-client",
     "sidecar",
-    "pyjs9"
+    "pyjs9=3.8"
 ]
 dynamic = ["version"]
 
