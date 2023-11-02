@@ -54,7 +54,7 @@ class JS9(JS9_):
             debug = False
         
         # extra parameter
-        frame_url = kwargs.get('frame_url', 'http://localhost:8888/js9')
+        frame_url = kwargs.get('frame_url', '/js9')
         width  = kwargs.get('width', 600)
         height = kwargs.get('height', 700)
         
