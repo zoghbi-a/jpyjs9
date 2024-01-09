@@ -2,30 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-__version__ = '0.1'
+__version__ = '0.2'
 
 
-from .handler import _jupyter_server_extension_paths
-from .js9 import JS9
-
-
-## ----------------------------------------- ##
-## Add a JS9 icon to the jupyterlab launcher ##
-"""
-This is the main js9 web server.
-js9_web_server is called by jupyter_serverproxy_servers
-as an entry point
-"""
-def js9_web_server():
-    return {
-        'command': [],
-        'launcher_entry': {
-            'enabled': True,
-            'title': 'JS9',
-            'new_browser_tab': False,
-        }
-    }
-## ----------------------------------------- ##
+from .app import _jupyter_server_extension_paths
 
 
 ## ------------------------------------------ ##
@@ -39,10 +19,10 @@ as an entry point
 """
 def js9_helper_server():
     return {
-        'command': ['bash', '-c', 'node /opt/js9-web/js9Helper.js'],
+        'command': ['bash', '-c', 'DEBUG=* node /opt/js9-web/js9Helper.js'],
         'port': 2718,
         'launcher_entry': {
-           'enabled': False,
+           'enabled': True,
         }
     }
 ## ------------------------------------------ ##
