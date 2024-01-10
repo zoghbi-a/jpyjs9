@@ -24,6 +24,7 @@ dynamic = ["version"]
 
 [project.entry-points.jupyter_serverproxy_servers]
 js9Helper = "jpyjs9:js9_helper_server"
+js9 = "jpyjs9:js9_launcher"
 
 [project.urls]
 Source = "https://github.com/zoghbi-a/jpyjs9"

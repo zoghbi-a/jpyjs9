@@ -6,7 +6,10 @@ __version__ = '0.2'
 
 
 from .app import _jupyter_server_extension_paths
+from .js9 import JS9, JS9Manager as _manager
+js9 = _manager()
 
+__all__ = ['JS9', 'js9']
 
 ## ------------------------------------------ ##
 ## Add a proxy entry that for js9 server-side ##
@@ -22,7 +25,25 @@ def js9_helper_server():
         'command': ['bash', '-c', 'DEBUG=* node /opt/js9-web/js9Helper.js'],
         'port': 2718,
         'launcher_entry': {
-           'enabled': True,
+           'enabled': False,
         }
     }
 ## ------------------------------------------ ##
+
+## ----------------------------------------- ##
+## Add a JS9 icon to the jupyterlab launcher ##
+"""
+We do it this way so we don't have to write
+Jupyterlab extension. There could be a simpler
+way to do it
+"""
+def js9_launcher():
+    return {
+        'command': [],
+        'new_browser_tab': False,
+        'launcher_entry': {
+            'enabled': True,
+            'title': 'JS9',
+        }
+    }
+## ----------------------------------------- ##

@@ -10,85 +10,84 @@ from sidecar import Sidecar
 
 # ignore socketio connection error
 import logging
-logging.getLogger('root').setLevel(logging.ERROR)
+logging.getLogger('jpyjs9').setLevel(logging.ERROR)
 
 
-_JS9Refs = {}    
+class JS9Manager:
+    """Manage multiple instances of JS9"""
+
+    def __init__(self):
+        self.instances = weakref.WeakValueDictionary()
+
+    def get_JS9(self, side=False, app_url=None, id=None, width=600, height=700,
+                host=None, multi=False, pageid=None, maxtries=5, delay=2, debug=False):
+        """Return JS9 instance if cached, or a new one"""
+        if id is not None and id in self.instances:
+            return self.instances[id]
+        else:
+            new_js9 = JS9(side, app_url, id, width, height, host, multi, 
+                          pageid, maxtries, delay, debug)
+            self.instances[new_js9.jid] = new_js9
+            return new_js9
+        
 
 class JS9(JS9_):
     
-    def __init__(self, side=False, *args, **kwargs):
+    def __init__(self, side=False, app_url=None, id=None, width=600, height=700,
+                 host=None, multi=False, pageid=None, maxtries=10, delay=2, debug=False):
         """Start or connect to an instance of JS9
         
         Parameters:
         -----------
-        host: 'http://localhost:2718',
+        side: Default is False, Set True to start in a side windown in jupyter
+        frame_url: '/js9', the url to the js9 app inside jupyterlab
+        width: 600, width of the window
+        height: 600
+        host: Helper host; default='http://localhost:2718',
         id: 'JS9',
         multi: False,
         pageid: None,
         maxtries: 5,
         delay: 1,
         debug: False,
-        side: False, Set true to start in a side windown in jupyter
-        frame_url: 'http://localhost:8888/js9', the url to the js9 app
-        width: 600
-        height: 600
         """
         # append the main docstring from parent
         JS9.__init__.__doc__ += JS9_.__init__.__doc__
 
+        if id is None:
+            id = f'{uuid.uuid4()}'[:4]
+        self.jid = id
         
-        if len(args) > 1:
-            id = args[1]
-            args = (args[0],) + args[2:]
-        elif 'id' in kwargs:
-            id = kwargs.pop('id')
-        else:
-            id = str(uuid.uuid4())[:4]
+        if host is None:
+            host = 'http://localhost:2718'
+
+        if app_url is None:
+            app_url = '/js9'
+        self.app_url = app_url
         
-        if len(args) == 7:
-            debug = args[6]
-        elif 'debug' in kwargs:
-            debug = kwargs['debug']
-        else:
-            debug = False
-        
-        # extra parameter
-        frame_url = kwargs.get('frame_url', '/js9')
-        width  = kwargs.get('width', 600)
-        height = kwargs.get('height', 700)
-        
-        
-        ref = _JS9Refs.get(id, None)
-        if ref is not None:
-            if debug: print(f'Recovering instance {id}')
-            ref = ref()
-            if debug: print(f'Recoved instance {id}')
             
         # attach the JS9 window
-        html = f"<iframe src='{frame_url}/{id}' width={width} height={height}></iframe>"
+        html = f"<iframe src='{app_url}/{id}' width={width} height={height}></iframe>"
         self.ipw_obj = ipw.widgets.HTML(value = html)
-        
+        self.display(side, width, height)
+
+        # initialize the parent JS9 class, first remove our added keys
+        if debug: print(f'Calling parent for {id}')
+        super(JS9, self).__init__(id=id, host=host, multi=multi, pageid=pageid, 
+                                  maxtries=maxtries, delay=delay, debug=debug)
+
+    
+    def display(self, side=False, width=600, height=700):
+        """Display widget"""
         self.sc = None
         if side:
             # open a side window 
             layout = ipw.Layout(width=f'{width}px', height=f'{height}px')
-            self.sc = Sidecar(title=f'JS9-{id}', layout=layout)
+            self.sc = Sidecar(title=f'JS9:{self.jid}', layout=layout)
             with self.sc:
                 display(self.ipw_obj)
         else:
             display(self.ipw_obj)
-
-        
-        if ref is None:
-            if debug: print(f'Starting a new instance {id}')
-            _JS9Refs[id] = weakref.ref(self)
-        
-        # initialize the parent JS9 class, first remove our added keys
-        for k in ['frame_url', 'width', 'height']:
-            kwargs.pop(k, None)
-        if debug: print(f'Calling parent for {id}')
-        super(JS9, self).__init__(id=f'JS9-{id}', multi=True, *args, **kwargs)
             
             
     def close(self):
