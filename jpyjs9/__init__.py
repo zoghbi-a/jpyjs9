@@ -22,7 +22,7 @@ as an entry point
 """
 def js9_helper_server():
     return {
-        'command': ['bash', '-c', 'DEBUG=* node /opt/js9-web/js9Helper.js'],
+        'command': ['bash', '-c', 'DEBUG=* node /opt/js9-web/js9Helper.js > /tmp/helper.log 2>&1'],
         'port': 2718,
         'launcher_entry': {
            'enabled': False,
