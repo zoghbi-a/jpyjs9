@@ -7,6 +7,7 @@ import weakref
 import uuid
 import ipywidgets as ipw
 from sidecar import Sidecar
+from jupyter_server import serverapp
 
 # ignore socketio connection error
 import logging
@@ -62,7 +63,11 @@ class JS9(JS9_):
             host = 'http://localhost:2718'
 
         if app_url is None:
-            app_url = '/js9'
+            base_url = '/'
+            for server in serverapp.list_running_servers():
+                base_url = server['base_url']
+                break
+            app_url = base_url + 'js9'
         self.app_url = app_url
         
             

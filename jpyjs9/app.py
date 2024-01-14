@@ -13,7 +13,8 @@ class Js9App(ExtensionAppJinjaMixin, ExtensionApp):
     if 'JS9_WEB_PATH' in os.environ:
         js9web = os.environ['JS9_WEB_PATH']
     else:
-        raise ValueError('JS9_WEB_PATH needs to be defined')
+        js9web = '/opt/js9-web/'
+        #raise ValueError('JS9_WEB_PATH needs to be defined')
     static_paths = [js9web]
     template_paths = [js9web]
 
