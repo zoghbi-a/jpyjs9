@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "requests", "appdirs", "hatch-build-scripts"]
+requires = ["hatchling", "nodeenv", "requests", "appdirs", "hatch-build-scripts"]
 build-backend = "hatchling.build"
 
 [project]
@@ -44,6 +44,7 @@ exclude = [".git", ".ipynb_checkpoints"]
 
 [[tool.hatch.build.hooks.build-scripts.scripts]]
 commands = [
-    "python clone_js9.py"
+    "python clone_js9.py",
+    "python assist_node.py"
 ]
 artifacts = []
