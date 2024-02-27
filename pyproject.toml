@@ -14,11 +14,11 @@ authors = [
 ]
 
 dependencies = [
-    'jupyter-server-proxy',
+    "jupyter-server-proxy @ git+https://github.com/jupyterhub/jupyter-server-proxy",
     "python-socketio[client]",
     "socketIO-client",
     "sidecar",
-    "pyjs9==3.8"
+    "pyjs9 @ git+https://github.com/duytnguyendtn/pyjs9.git@jupyterjs9"
 ]
 dynamic = ["version"]
 
@@ -31,6 +31,9 @@ Source = "https://github.com/zoghbi-a/jpyjs9"
 
 [tool.hatch.version]
 path = "jpyjs9/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel.shared-data]
 "jpyjs9.json" = "etc/jupyter/jupyter_server_config.d/jpyjs9.json"
