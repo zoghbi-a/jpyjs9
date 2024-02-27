@@ -22,7 +22,7 @@ logging.debug(f"Serving JS9 files from: {JS9_PATH}")
 class Js9Handler(ExtensionHandlerJinjaMixin, ExtensionHandlerMixin, JupyterHandler):
     @web.authenticated
     def get(self, jid='JS9'):
-        self.write(self.render_template("index.html", jid=jid))
+        self.write(self.render_template("js9.html"))
 ## ---------------------------------------- ##
 
 
