@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "requests", "appdirs", "hatch-build-scripts"]
 build-backend = "hatchling.build"
 
 [project]
@@ -18,7 +18,8 @@ dependencies = [
     "python-socketio[client]",
     "socketIO-client",
     "sidecar",
-    "pyjs9 @ git+https://github.com/duytnguyendtn/pyjs9.git@jupyterjs9"
+    "pyjs9 @ git+https://github.com/duytnguyendtn/pyjs9.git@jupyterjs9",
+    "appdirs"
 ]
 dynamic = ["version"]
 
@@ -40,3 +41,9 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.sdist]
 exclude = [".git", ".ipynb_checkpoints"]
+
+[[tool.hatch.build.hooks.build-scripts.scripts]]
+commands = [
+    "python clone_js9.py"
+]
+artifacts = []

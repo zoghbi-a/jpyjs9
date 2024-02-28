@@ -5,7 +5,7 @@
 __version__ = '0.1'
 
 
-from .handler import _jupyter_server_extension_paths
+from .handler import _jupyter_server_extension_paths, JS9_PATH
 from .js9 import JS9
 
 
@@ -39,7 +39,7 @@ as an entry point
 """
 def js9_helper_server():
     return {
-        'command': ['bash', '-c', 'node /opt/js9-web/js9Helper.js'],
+        'command': ['node', str(JS9_PATH / "js9Helper.js")],
         'port': 2718,
         'launcher_entry': {
            'enabled': False,
