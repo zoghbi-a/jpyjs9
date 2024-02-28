@@ -70,7 +70,7 @@ class JS9(JS9_):
             logging.debug(f'Recovered instance {id}')
             
         # attach the JS9 window
-        html = f"<iframe src='{frame_url}/{id}' width={width} height={height}></iframe>"
+        html = f"<iframe src='{frame_url}?frameid={id}' width={width} height={height}></iframe>"
         self.ipw_obj = ipw.widgets.HTML(value = html)
         
         self.sc = None
