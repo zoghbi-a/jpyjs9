@@ -61,7 +61,12 @@ class JS9(JS9_):
         # Derive URL subfolder path from Jupyter URL:
         logging.debug("Evaluating default frame url...")
         try:
-            subproc_out = str(subprocess.check_output(["jupyter", "lab", "list", "--json"]))
+            subproc_return = subprocess.run(["jupyter", "lab", "list", "--json"],
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE,
+                                            text=True)
+            # By default, use stdout. Sometimes Jupyter outputs to stderr for some reason...
+            subproc_out = subproc_return.stdout if subproc_return.stdout else subproc_return.stderr
             # Extract out only the json element by finding the first '{' and last '}'
             current_jupyter_session = subproc_out[subproc_out.index('{'):subproc_out.rfind('}')+1]
             jupyter_base_path = Path(json.loads(current_jupyter_session)['base_url'])
