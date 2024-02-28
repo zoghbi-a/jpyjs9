@@ -107,6 +107,9 @@ class JS9(JS9_):
         for k in ['frame_url', 'width', 'height']:
             kwargs.pop(k, None)
         logging.debug(f'Calling parent for {id}')
+        # TBF: Properly handle race condition
+        logging.debug(f'Sleeping to avoid race condition')
+        import time; time.sleep(5)
         super(JS9, self).__init__(id=f'JS9-{id}', multi=True, *args, **kwargs)
             
             
