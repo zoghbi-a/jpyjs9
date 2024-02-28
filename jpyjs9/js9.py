@@ -2,15 +2,19 @@
 JS9 wrapper to be used in Jupyter/IPython notebooks.
 Some of the ideas were adopted from jjs9
 """
-from pyjs9 import JS9 as JS9_ 
-import weakref
-import uuid
-import ipywidgets as ipw
-from sidecar import Sidecar
-
 # ignore socketio connection error
 import logging
 logging.getLogger('root').setLevel(logging.ERROR)
+import json
+from pathlib import Path
+import subprocess
+import uuid
+import weakref
+
+import ipywidgets as ipw
+from sidecar import Sidecar
+
+from pyjs9 import JS9 as JS9_ 
 
 
 _JS9Refs = {}    
@@ -41,18 +45,14 @@ class JS9(JS9_):
         if len(args) > 1:
             id = args[1]
             args = (args[0],) + args[2:]
-        elif 'id' in kwargs:
-            id = kwargs.pop('id')
         else:
-            id = str(uuid.uuid4())[:4]
+            id = kwargs.pop('id', str(uuid.uuid4())[:4])
         
         if len(args) == 7:
             debug = args[6]
-        elif 'debug' in kwargs:
-            debug = kwargs['debug']
         else:
-            debug = False
-        
+            debug = kwargs.get('debug', False)
+
         # extra parameter
         frame_url = kwargs.get('frame_url', '/js9')
         width  = kwargs.get('width', 600)
