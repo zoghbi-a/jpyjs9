@@ -58,7 +58,22 @@ class JS9(JS9_):
             logger.setLevel(logging.DEBUG)
         
         # extra parameter
-        frame_url = kwargs.get('frame_url', '/js9')
+        # Derive URL subfolder path from Jupyter URL:
+        logging.debug("Evaluating default frame url...")
+        try:
+            subproc_out = str(subprocess.check_output(["jupyter", "lab", "list", "--json"]))
+            # Extract out only the json element by finding the first '{' and last '}'
+            current_jupyter_session = subproc_out[subproc_out.index('{'):subproc_out.rfind('}')+1]
+            jupyter_base_path = Path(json.loads(current_jupyter_session)['base_url'])
+            frame_url_fallback = (jupyter_base_path / "js9").as_posix()
+            logging.debug("Successfully retrieved Jupyter base_url path")
+        except Exception as e:
+            # Use our usual fallback frame url
+            frame_url_fallback = "/js9"
+            logging.warning(f"Failed to retrieve Jupyter URL: {str(e)}, using default fallback")
+        frame_url = kwargs.get('frame_url', frame_url_fallback)
+        logging.debug(f"Using frame URL: {frame_url}")
+
         width  = kwargs.get('width', 600)
         height = kwargs.get('height', 700)
         
