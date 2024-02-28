@@ -4,7 +4,7 @@ Some of the ideas were adopted from jjs9
 """
 # ignore socketio connection error
 import logging
-logging.getLogger('root').setLevel(logging.ERROR)
+#logging.getLogger('root').setLevel(logging.ERROR)
 import json
 from pathlib import Path
 import subprocess
