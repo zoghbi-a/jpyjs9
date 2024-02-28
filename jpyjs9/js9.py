@@ -53,6 +53,10 @@ class JS9(JS9_):
         else:
             debug = kwargs.get('debug', False)
 
+        if debug:
+            logger = logging.getLogger()
+            logger.setLevel(logging.DEBUG)
+        
         # extra parameter
         frame_url = kwargs.get('frame_url', '/js9')
         width  = kwargs.get('width', 600)
@@ -61,9 +65,9 @@ class JS9(JS9_):
         
         ref = _JS9Refs.get(id, None)
         if ref is not None:
-            if debug: print(f'Recovering instance {id}')
+            logging.debug(f'Recovering instance {id}')
             ref = ref()
-            if debug: print(f'Recoved instance {id}')
+            logging.debug(f'Recovered instance {id}')
             
         # attach the JS9 window
         html = f"<iframe src='{frame_url}/{id}' width={width} height={height}></iframe>"
@@ -81,13 +85,13 @@ class JS9(JS9_):
 
         
         if ref is None:
-            if debug: print(f'Starting a new instance {id}')
+            logging.debug(f'Starting a new instance {id}')
             _JS9Refs[id] = weakref.ref(self)
         
         # initialize the parent JS9 class, first remove our added keys
         for k in ['frame_url', 'width', 'height']:
             kwargs.pop(k, None)
-        if debug: print(f'Calling parent for {id}')
+        logging.debug(f'Calling parent for {id}')
         super(JS9, self).__init__(id=f'JS9-{id}', multi=True, *args, **kwargs)
             
             
