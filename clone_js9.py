@@ -1,5 +1,6 @@
 from contextlib import closing
 from io import BytesIO
+from os import environ
 from pathlib import Path
 import shutil
 from sys import prefix
@@ -36,8 +37,12 @@ def extract_js9(path):
     (path / extracted_repo_folders[0]).rename(js9_path)
 
 
-try:
-    extract_js9(Path(prefix) / "src")
-except PermissionError:
-    print(f"(clone_js9.py) Environment extraction failed. Falling back to user data directory.")
-    extract_js9(user_data_dir(appname="jupyterjs9", appauthor="heasarc"))
+# If the environment variable override INSTALL_JS9 is set to FALSE, skip downloading JS9.
+# Using (now deprecated) distutils.util.strtobool definition of FALSE
+# https://github.com/python/cpython/blob/v3.11.2/Lib/distutils/util.py#L318
+if not (str(environ.get("INSTALL_JS9")).lower() in ('n', 'no', 'f', 'false', 'off', '0')):
+    try:
+        extract_js9(Path(prefix) / "src")
+    except PermissionError:
+        print(f"(clone_js9.py) Environment extraction failed. Falling back to user data directory.")
+        extract_js9(user_data_dir(appname="jupyterjs9", appauthor="heasarc"))
