@@ -19,7 +19,8 @@ dependencies = [
     "socketIO-client",
     "sidecar",
     "pyjs9 @ git+https://github.com/duytnguyendtn/pyjs9.git@jupyterjs9",
-    "appdirs"
+    "appdirs",
+    "jupyterlab"
 ]
 dynamic = ["version"]
 
