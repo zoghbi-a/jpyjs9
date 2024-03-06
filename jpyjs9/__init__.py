@@ -19,10 +19,10 @@ as an entry point
 def js9_web_server():
     return {
         'command': [],
+        'new_browser_tab': False,
         'launcher_entry': {
             'enabled': True,
             'title': 'JS9',
-            'new_browser_tab': False,
         }
     }
 ## ----------------------------------------- ##
