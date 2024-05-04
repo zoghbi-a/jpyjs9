@@ -14,11 +14,12 @@ authors = [
 ]
 
 dependencies = [
-    'jupyter-server-proxy',
+    # the version in in pip (v0.8.8) has a bug
+    'jupyter-server-proxy @ git+https://github.com/jupyterhub/jupyter-server-proxy',
     "python-socketio[client]",
     "socketIO-client",
     "sidecar",
-    "pyjs9==3.8"
+    "pyjs9 @ git+https://github.com/zoghbi-a/pyjs9.git@socket-fix"
 ]
 dynamic = ["version"]
 
@@ -37,3 +38,6 @@ path = "jpyjs9/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 exclude = [".git", ".ipynb_checkpoints"]
+
+[tool.hatch.metadata]
+allow-direct-references = true

@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-__version__ = '0.2'
+__version__ = '0.1'
 
-
-from .app import _jupyter_server_extension_paths
+from .app import _jupyter_server_extension_paths, JS9_PATH
 from .js9 import JS9, JS9Manager as _manager
 js9 = _manager()
 
@@ -21,8 +20,10 @@ js9_helper_server is called by jupyter_serverproxy_servers
 as an entry point
 """
 def js9_helper_server():
+
     return {
-        'command': ['bash', '-c', 'DEBUG=* node /opt/js9-web/js9Helper.js > /tmp/helper.log 2>&1'],
+        #'command': ['bash', '-c', f'DEBUG=* node {JS9_PATH}/js9Helper.js'],
+        'command': ['bash', '-c', f'node {JS9_PATH}/js9Helper.js'],
         'port': 2718,
         'launcher_entry': {
            'enabled': False,
