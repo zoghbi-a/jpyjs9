@@ -10,6 +10,11 @@ from pathlib import Path
 import subprocess
 import uuid
 import weakref
+import os
+from pathlib import Path
+from jupyter_server import serverapp
+import time
+import tempfile
 
 import ipywidgets as ipw
 from sidecar import Sidecar
@@ -116,6 +121,51 @@ class JS9(JS9_):
         logging.debug(f'Sleeping to avoid race condition')
         import time; time.sleep(5)
         super(JS9, self).__init__(id=f'JS9-{id}', multi=True, *args, **kwargs)
+    
+    def _get_running_server(self):
+        """Find the currently running server"""
+        servers = list(serverapp.list_running_servers())
+        running_url = os.environ.get('JUPYTER_SERVER_URL', None)
+        # pick the first, unless we have JUPYTER_SERVER_URL defined
+        this_server = servers[0]
+        for server in servers:
+            if server['url'] == running_url:
+                this_server = server
+        return this_server
+
+    def jupyterLoad(self, file_path, opts={}):
+        """Load image(s) when from inside a running jupyterLab session
+        
+        Parameters:
+        file_path: str
+            the path to the file, both absolute or relative
+        opts: dict
+            contains image parameters
+
+        Example:
+        >>> js9.jupyterLoad('../dir/filt.fits', {'scale': 'linear', 'colormap': 'sls'})
+        
+        """
+        path = os.path.abspath(os.fsdecode(file_path))
+        if not os.path.exists(path):
+            raise ValueError(f'Cannot find the file in: {file_path}')
+        filename = os.path.basename(path)
+        
+        server = self._get_running_server()
+        server_root = Path(server['root_dir'])
+
+        with tempfile.TemporaryDirectory(dir=server_root, suffix='_js9') as temp_dir:
+            tmp_path = os.path.join(temp_dir, filename)
+            if not os.path.exists(tmp_path):
+                os.symlink(path, tmp_path)
+            args = [os.path.join('files', os.path.basename(temp_dir), filename), opts]
+            self.send({'cmd': 'Load', 'args': args})
+            print('Loading the image ...')
+            while self.GetStatus('Load') == 'processing':
+                time.sleep(0.2)
+            print('done')
+
+        
             
             
     def close(self):
